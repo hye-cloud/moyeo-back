@@ -7,5 +7,6 @@ import java.util.List;
 
 public interface ParticipantAvailabilityRepository extends JpaRepository<ParticipantAvailability, Integer> {
     List<ParticipantAvailability> findAllByParticipantId(Integer participantId);
+    List<ParticipantAvailability> findAllByParticipantIdIn(List<Integer> participantIds);
     void deleteAllByParticipantId(Integer participantId);
 }

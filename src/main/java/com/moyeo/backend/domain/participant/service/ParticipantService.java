@@ -18,6 +18,7 @@ import com.moyeo.backend.global.error.ForbiddenException;
 import com.moyeo.backend.global.error.NotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -35,16 +36,19 @@ public class ParticipantService {
     private final CandidateDateRepository candidateDateRepository;
     private final ParticipantRepository participantRepository;
     private final ParticipantAvailabilityRepository availabilityRepository;
+    private final PasswordEncoder passwordEncoder;
     private final SecureRandom secureRandom = new SecureRandom();
 
     public ParticipantService(MeetingRepository meetingRepository,
                               CandidateDateRepository candidateDateRepository,
                               ParticipantRepository participantRepository,
-                              ParticipantAvailabilityRepository availabilityRepository) {
+                              ParticipantAvailabilityRepository availabilityRepository,
+                              PasswordEncoder passwordEncoder) {
         this.meetingRepository = meetingRepository;
         this.candidateDateRepository = candidateDateRepository;
         this.participantRepository = participantRepository;
         this.availabilityRepository = availabilityRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional
@@ -77,6 +81,18 @@ public class ParticipantService {
         availabilityRepository.deleteAllByParticipantId(participant.getId());
         saveAvailabilities(participant.getId(), dateIds);
         return new ParticipantResponse(participant.getId(), participant.getName(), dateIds);
+    }
+
+    @Transactional
+    public void deleteByAdmin(String meetingCode, Integer participantId, String adminPassword) {
+        Meeting meeting = findMeeting(meetingCode);
+        if (!passwordEncoder.matches(adminPassword, meeting.getAdminPasswordHash())) {
+            throw new ForbiddenException("관리자 비밀번호가 올바르지 않습니다.");
+        }
+        Participant participant = participantRepository.findByIdAndMeetingId(participantId, meeting.getId())
+                .orElseThrow(() -> new NotFoundException("참여자를 찾을 수 없습니다."));
+        availabilityRepository.deleteAllByParticipantId(participant.getId());
+        participantRepository.delete(participant);
     }
 
     private Meeting findMeeting(String meetingCode) {

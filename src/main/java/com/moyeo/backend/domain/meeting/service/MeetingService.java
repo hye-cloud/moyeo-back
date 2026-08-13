@@ -8,6 +8,7 @@ import com.moyeo.backend.domain.meeting.entity.CandidateDate;
 import com.moyeo.backend.domain.meeting.entity.Meeting;
 import com.moyeo.backend.domain.meeting.repository.CandidateDateRepository;
 import com.moyeo.backend.domain.meeting.repository.MeetingRepository;
+import com.moyeo.backend.domain.participant.repository.ParticipantRepository;
 import com.moyeo.backend.global.error.BadRequestException;
 import com.moyeo.backend.global.error.ForbiddenException;
 import com.moyeo.backend.global.error.NotFoundException;
@@ -25,13 +26,15 @@ public class MeetingService {
     private final MeetingRepository meetingRepository;
     private final CandidateDateRepository candidateDateRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ParticipantRepository participantRepository;
     private final SecureRandom secureRandom = new SecureRandom();
 
     public MeetingService(MeetingRepository meetingRepository, CandidateDateRepository candidateDateRepository,
-                          PasswordEncoder passwordEncoder) {
+                          PasswordEncoder passwordEncoder, ParticipantRepository participantRepository) {
         this.meetingRepository = meetingRepository;
         this.candidateDateRepository = candidateDateRepository;
         this.passwordEncoder = passwordEncoder;
+        this.participantRepository = participantRepository;
     }
 
     @Transactional
@@ -47,7 +50,9 @@ public class MeetingService {
 
     public MeetingResponse get(String code) {
         Meeting meeting = find(code);
-        return MeetingResponse.of(meeting, candidateDateRepository.findAllByMeetingIdOrderByCandidateDateAsc(meeting.getId()));
+        return MeetingResponse.of(meeting,
+                candidateDateRepository.findAllByMeetingIdOrderByCandidateDateAsc(meeting.getId()),
+                participantRepository.countByMeetingId(meeting.getId()));
     }
 
     @Transactional
