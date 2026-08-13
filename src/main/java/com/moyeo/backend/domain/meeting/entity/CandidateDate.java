@@ -27,5 +27,10 @@ public class CandidateDate {
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
+    public CandidateDate(Integer meetingId, LocalDate candidateDate) {
+        this.meetingId = meetingId;
+        this.candidateDate = candidateDate;
+        this.createdAt = LocalDateTime.now();
+    }
 
 }

@@ -34,9 +34,32 @@ public class Meeting {
 
     private LocalDateTime updatedAt;
 
-    @ManyToOne
-    @JoinColumn()
+    @Column
     private Integer confirmedCandidateDateId;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private MeetingStatus status;
+
+    public Meeting(String meetingCode, String title, String description, String adminPasswordHash) {
+        this.meetingCode = meetingCode;
+        this.title = title;
+        this.description = description;
+        this.adminPasswordHash = adminPasswordHash;
+        this.status = MeetingStatus.OPEN;
+        this.createdAt = LocalDateTime.now();
+    }
+
+    public void update(String title, String description) {
+        this.title = title;
+        this.description = description;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void confirm(Integer candidateDateId) {
+        this.confirmedCandidateDateId = candidateDateId;
+        this.status = MeetingStatus.CONFIRMED;
+        this.updatedAt = LocalDateTime.now();
+    }
 
 }
