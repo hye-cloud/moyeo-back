@@ -23,6 +23,7 @@ public class Participant {
     @Column(nullable = false, length = 30)
     private String name;
 
+    @Column(nullable = false, unique = true, length = 64)
     private String editTokenHash;
 
     @Column(nullable = false)
@@ -30,5 +31,16 @@ public class Participant {
 
     private LocalDateTime updatedAt;
 
+    public Participant(Integer meetingId, String name, String editTokenHash) {
+        this.meetingId = meetingId;
+        this.name = name;
+        this.editTokenHash = editTokenHash;
+        this.createdAt = LocalDateTime.now();
+    }
+
+    public void updateName(String name) {
+        this.name = name;
+        this.updatedAt = LocalDateTime.now();
+    }
 
 }
