@@ -5,7 +5,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -27,5 +26,10 @@ public class ParticipantAvailability {
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
+    public ParticipantAvailability(Integer participantId, Integer candidateDateId) {
+        this.participantId = participantId;
+        this.candidateDateId = candidateDateId;
+        this.createdAt = LocalDateTime.now();
+    }
 
 }

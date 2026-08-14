@@ -14,14 +14,22 @@ public record MeetingResponse(
         String description,
         MeetingStatus status,
         List<CandidateDateResponse> candidateDates,
+        long participantCount,
         Integer confirmedCandidateDateId,
+        LocalDate confirmedDate,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {
-    public static MeetingResponse of(Meeting meeting, List<CandidateDate> dates) {
+    public static MeetingResponse of(Meeting meeting, List<CandidateDate> dates, long participantCount) {
+        LocalDate confirmedDate = dates.stream()
+                .filter(date -> date.getId().equals(meeting.getConfirmedCandidateDateId()))
+                .map(CandidateDate::getCandidateDate)
+                .findFirst()
+                .orElse(null);
         return new MeetingResponse(meeting.getMeetingCode(), meeting.getTitle(), meeting.getDescription(),
                 meeting.getStatus(), dates.stream().map(CandidateDateResponse::from).toList(),
-                meeting.getConfirmedCandidateDateId(), meeting.getCreatedAt(), meeting.getUpdatedAt());
+                participantCount, meeting.getConfirmedCandidateDateId(), confirmedDate,
+                meeting.getCreatedAt(), meeting.getUpdatedAt());
     }
 
     public record CandidateDateResponse(Integer id, LocalDate date) {
